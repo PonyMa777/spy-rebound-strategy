@@ -18,12 +18,13 @@ assert(c.takeProfit>0,'Invalid take profit.');
 n=height(T);
 assert(n>=c.downDays+c.flatDays+2,'Not enough daily observations.');
 signal=false(n,1); flat=false(n,1); decline=false(n,1);
-flatRange=nan(n,1); slope=nan(n,1); dailyReturn=[NaN;diff(T.Close)./T.Close(1:end-1)];
+signalPrice=(T.Open+T.Close)/2;
+flatRange=nan(n,1); slope=nan(n,1); dailyReturn=[NaN;diff(signalPrice)./signalPrice(1:end-1)];
 for t=c.downDays+c.flatDays+2:n
     % Non-overlapping phases: decline -> flat -> rebound day t.
     a=t-c.flatDays;
-    down=T.Close(a-c.downDays-1:a-1);
-    plateau=T.Close(a:t-1);
+    down=signalPrice(a-c.downDays-1:a-1);
+    plateau=signalPrice(a:t-1);
     decline(t)=all(diff(down)<0);
     p=polyfit((0:c.flatDays-1)',plateau,1);
     flatRange(t)=(max(plateau)-min(plateau))/mean(plateau);
@@ -70,9 +71,9 @@ bp=T.Open(1)*(1+c.slippageRate);
 bq=floor(c.initialCash/(bp*(1+c.feeRate)));
 benchmark=c.initialCash-bq*bp*(1+c.feeRate)+bq*T.Close;
 peak=cummax([c.initialCash;equity]); drawdown=equity./peak(2:end)-1;
-r.Daily=table(T.Date,T.Open,T.Close,dailyReturn,decline,flat,flatRange,slope, ...
+r.Daily=table(T.Date,T.Open,T.Close,signalPrice,dailyReturn,decline,flat,flatRange,slope, ...
     signal,position,cashHistory,equity,benchmark,drawdown,'VariableNames', ...
-    {'Date','Open','Close','DailyReturn','Decline','Flat','FlatRange','DailySlope', ...
+    {'Date','Open','Close','SignalPrice','SignalReturn','Decline','Flat','FlatRange','DailySlope', ...
     'Signal','Shares','Cash','Equity','BuyHoldEquity','Drawdown'});
 r.Trades=trades;
 r.Summary=table(equity(end)/c.initialCash-1,min(drawdown), ...

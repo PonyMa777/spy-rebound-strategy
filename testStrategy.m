@@ -1,7 +1,7 @@
 function testStrategy()
 c=strategyConfig();
 p=[105;104;103;102;100;100.02;99.99;100.01;100;100.2;101;102;103];
-o=[p(1);p(1:end-1)];
+o=[p(1);p(1:end-1)]; o(1:10)=p(1:10);
 T=table(datetime(2025,1,1)+caldays((0:numel(p)-1)'),o,max(o,p),p, ...
     'VariableNames',{'Date','Open','High','Close'});
 r=backtestStrategy(T,c);
@@ -26,5 +26,12 @@ U=T; U.High(11)=105; q=backtestStrategy(U,c);
 assert(q.Trades.ExecutionDate(1)==q.Trades.ExecutionDate(2));
 U=[T;T]; U.Date=datetime(2025,1,1)+caldays((0:height(U)-1)');
 q=backtestStrategy(U,c); assert(sum(q.Trades.Side=="BUY")==2 && sum(q.Trades.Side=="SELL")==2);
-fprintf('PASS: next-open entry, take profit, budget, no lookahead, gaps, same-day exit, re-entry.\n');
+% Close rises 0.4%, but OC mean is flat: must not trigger.
+U=T; U.Open(10)=99.6; U.Close(10)=100.4; U.High(10)=100.4;
+q=backtestStrategy(U,c); assert(~q.Daily.Signal(10));
+% Close falls, but OC mean rises 0.2%: must trigger.
+U=T; U.Open(10)=100.6; U.Close(10)=99.8; U.High(10)=100.6;
+q=backtestStrategy(U,c); assert(q.Daily.Signal(10));
+assert(max(abs(q.Daily.SignalPrice-(U.Open+U.Close)/2))<1e-10);
+fprintf('PASS: OC mean signal tests; next-open entry, take profit, budget, no lookahead, gaps, same-day exit, re-entry.\n');
 end

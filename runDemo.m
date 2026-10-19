@@ -7,6 +7,7 @@ if nargin==0 || strlength(string(csvPath))==0
     dates=datetime(2025,1,1)+caldays((0:45)');
     dates=dates(~ismember(weekday(dates),[1 7])); dates=dates(1:numel(closePrice));
     openPrice=[closePrice(1);closePrice(1:end-1)];
+    openPrice(1:10)=closePrice(1:10); % synthetic setup for OC mean signals
     T=table(dates,openPrice,max(openPrice,closePrice),closePrice,'VariableNames',{'Date','Open','High','Close'});
     label='SYNTHETIC DEMO - not real market performance';
 else
@@ -20,13 +21,13 @@ writetable(r.Daily,fullfile(out,'daily.csv'));
 writetable(r.Trades,fullfile(out,'trades.csv'));
 writetable(r.Summary,fullfile(out,'summary.csv'));
 f=figure('Name',label,'Color','w','Position',[100 100 1100 800]); tiledlayout(3,1);
-nexttile; plot(T.Date,T.Close,'LineWidth',1.3); hold on;
-idx=r.Daily.Signal; scatter(T.Date(idx),T.Close(idx),65,'o','MarkerEdgeColor',[0.8 0.5 0]);
+nexttile; plot(T.Date,r.Daily.SignalPrice,'LineWidth',1.3); hold on;
+idx=r.Daily.Signal; scatter(T.Date(idx),r.Daily.SignalPrice(idx),65,'o','MarkerEdgeColor',[0.8 0.5 0]);
 if ~isempty(r.Trades)
     b=r.Trades.Side=="BUY"; s=r.Trades.Side=="SELL";
     scatter(r.Trades.ExecutionDate(b),r.Trades.FillPrice(b),65,[0 0.55 0],'^','filled');
     scatter(r.Trades.ExecutionDate(s),r.Trades.FillPrice(s),65,[0.85 0 0],'v','filled');
-    legend('Close','Signal','BUY','SELL','Location','best');
+    legend('(Open+Close)/2','Signal','BUY','SELL','Location','best');
 end
 title(label); ylabel('Price'); grid on;
 nexttile; plot(T.Date,[r.Daily.Equity,r.Daily.BuyHoldEquity],'LineWidth',1.2);
