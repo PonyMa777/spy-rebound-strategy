@@ -1,0 +1,9 @@
+results/
+data/*.csv
+*.asv
+*.autosave
+slprj/
+
+resources/project/
+*.prj
+
