@@ -1,5 +1,5 @@
 function r = backtestChan(T,c)
-% 需审查: long only. Signal at close t, fill at open t+1.
+% 已审查: long only. Signal confirmed at close t, filled at that close t (plus slippage).
 % Fixed intraday take-profit/stop only. Same-bar ambiguity: stop first.
 required={'Date','Open','High','Low','Close'};
 assert(all(ismember(required,T.Properties.VariableNames)), ...
@@ -16,25 +16,13 @@ assert(all(isfinite(T.High) & isfinite(T.Low) & T.Low>0 & ...
 s=chanSignals(T,c); n=height(T);
 buyTypes=["1B","2B","3B"]; buyTypes=buyTypes(logical(c.useBuy));
 
-cash=c.initialCash; shares=0; entry=0; ot=struct();
-pendingBuy=""; rows={};
+cash=c.initialCash; shares=0; entry=0; ot=struct(); rows={};
 equity=zeros(n,1); cashHistory=zeros(n,1); position=zeros(n,1);
 for t=1:n
-    if pendingBuy~="" && shares==0
-        price=T.Open(t)*(1+c.slippageRate);
-        qty=floor(cash*c.cashFraction/(price*(1+c.feeRate)));
-        if qty>0
-            fee=qty*price*c.feeRate; cash=cash-qty*price-fee;
-            shares=qty; entry=t;
-            ot=struct('EntryType',pendingBuy,'SignalDate',T.Date(t-1),'EntryDate',T.Date(t), ...
-                'EntryPrice',price,'Shares',qty,'EntryFee',fee,'StopLevel',price*(1-c.stopLoss), ...
-                'ExitReason',"OPEN",'ExitSignalDate',NaT,'ExitDate',NaT,'ExitPrice',NaN, ...
-                'ExitFee',NaN,'PnL',NaN,'Return',NaN,'HoldDays',NaN);
-        end
-    end
-    pendingBuy=""; exited=false;
+    exited=false;
+    % Bracket orders from earlier entries work through today's bar first.
     if shares>0
-        [reason,price]=chanExitPrice(T.Open(t),T.High(t),T.Low(t),ot.EntryPrice,c,t==entry);
+        [reason,price]=chanExitPrice(T.Open(t),T.High(t),T.Low(t),ot.EntryPrice,c,false);
         if reason~=""
             fee=shares*price*c.feeRate;
             cash=cash+shares*price-fee; cost=ot.Shares*ot.EntryPrice+ot.EntryFee;
@@ -44,8 +32,18 @@ for t=1:n
             rows{end+1}=ot; shares=0; exited=true; %#ok<AGROW>
         end
     end
+    % The signal is confirmed by today's close, so buy at that close on the signal day.
     if shares==0 && ~exited && ismember(s.Label(t),buyTypes)
-        pendingBuy=s.Label(t);
+        price=T.Close(t)*(1+c.slippageRate);
+        qty=floor(cash*c.cashFraction/(price*(1+c.feeRate)));
+        if qty>0
+            fee=qty*price*c.feeRate; cash=cash-qty*price-fee;
+            shares=qty; entry=t;
+            ot=struct('EntryType',s.Label(t),'SignalDate',T.Date(t),'EntryDate',T.Date(t), ...
+                'EntryPrice',price,'Shares',qty,'EntryFee',fee,'StopLevel',price*(1-c.stopLoss), ...
+                'ExitReason',"OPEN",'ExitSignalDate',NaT,'ExitDate',NaT,'ExitPrice',NaN, ...
+                'ExitFee',NaN,'PnL',NaN,'Return',NaN,'HoldDays',NaN);
+        end
     end
     equity(t)=cash+shares*T.Close(t); cashHistory(t)=cash; position(t)=shares;
 end

@@ -1,5 +1,5 @@
 function c = chanConfig()
-% 需审查: Chan theory lessons 11-20, moving-average version. Returns/fees are decimal fractions.
+% 已审查: Chan theory lessons 11-20, moving-average version. Returns/fees are decimal fractions.
 c.initialCash = 100000;
 c.fastMA = 5;             % lesson 11: short MA
 c.slowMA = 10;            % lesson 11: long MA

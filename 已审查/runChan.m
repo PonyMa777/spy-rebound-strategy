@@ -1,5 +1,5 @@
 function r = runChan(csvPath)
-% 需审查: runChan() uses data/SPY_1993_2026.csv; runChan('D:\path\stock.csv') uses your file.
+% 已审查: runChan() uses data/SPY_1993_2026.csv; runChan('D:\path\stock.csv') uses your file.
 here=fileparts(mfilename('fullpath')); root=fileparts(here);
 if nargin==0 || strlength(string(csvPath))==0
     csvPath=fullfile(root,'data','SPY_1993_2026.csv');
@@ -7,14 +7,14 @@ end
 T=readtable(csvPath);
 if ~isdatetime(T.Date), T.Date=datetime(string(T.Date),'InputFormat','yyyy-MM-dd'); end
 c=chanConfig(); r=backtestChan(T,c);
-out=fullfile(root,'results','需审查_chan'); if ~isfolder(out), mkdir(out); end
+out=fullfile(root,'results','已审查_chan'); if ~isfolder(out), mkdir(out); end
 writetable(r.Daily,fullfile(out,'daily.csv'));
 writetable(r.Trades,fullfile(out,'trades.csv'));
 writetable(r.Summary,fullfile(out,'summary.csv'));
 writetable(r.ByType,fullfile(out,'by_type.csv'));
 writetable(r.Segments,fullfile(out,'segments.csv'));
 [~,name,ext]=fileparts(csvPath);
-label=sprintf('需审查 | Chan MA%d/MA%d | %s%s',c.fastMA,c.slowMA,name,ext);
+label=sprintf('已审查 | Chan MA%d/MA%d | %s%s',c.fastMA,c.slowMA,name,ext);
 f=figure('Name',label,'Color','w','Position',[100 100 1100 800]); tiledlayout(3,1);
 nexttile; plot(T.Date,r.Daily.SignalPrice,'Color',[0.2 0.4 0.8],'LineWidth',1); hold on;
 tr=r.Trades; colors=[0 0.55 0; 0.1 0.6 0.9; 0.6 0.2 0.8]; types=["1B","2B","3B"];

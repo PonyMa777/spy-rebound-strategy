@@ -1,5 +1,5 @@
 function s = chanSignals(T,c)
-% 需审查: split daily open-close means into fast/slow MA segments; label each crossing day.
+% 已审查: split daily open-close means into fast/slow MA segments; label each crossing day.
 % A segment is known only at the crossing that ends it, so labels use data up to that close.
 assert(c.fastMA>=1 && c.slowMA>c.fastMA,'slowMA must exceed fastMA.');
 px=(T.Open+T.Close)/2; n=numel(px);

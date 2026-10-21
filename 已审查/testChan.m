@@ -1,5 +1,5 @@
 function testChan()
-% 需审查: rule tests on hand-built segments, then engine properties on synthetic prices.
+% 已审查: rule tests on hand-built segments, then engine properties on synthetic prices.
 % 1B: lower high, new low, weaker force.
 s=mk([1 -1 1 -1],[110 108 105 103],[100 95 96 92],[0 10 0 6]);
 [lb,stop]=chanClassify(s); assert(lb=="1B" && stop==92);
@@ -29,7 +29,8 @@ r=backtestChan(T,c); tr=r.Trades;
 assert(height(tr)>0,'Synthetic series should trade.');
 for k=1:height(tr)
     i=find(T.Date==tr.SignalDate(k)); j=find(T.Date==tr.EntryDate(k));
-    assert(j==i+1 && abs(tr.EntryPrice(k)-T.Open(j)*(1+c.slippageRate))<1e-12); % next open fill
+    assert(j==i && abs(tr.EntryPrice(k)-T.Close(i)*(1+c.slippageRate))<1e-12); % signal-day close fill
+    assert(tr.ExitReason(k)=="OPEN" || tr.HoldDays(k)>=1); % entry bar's High/Low happened before the fill
     assert(any(r.Daily.Signal(i)==["1B","2B","3B"]));
     if tr.ExitReason(k)=="STOP"
         e=find(T.Date==tr.ExitSignalDate(k)); assert(T.Low(e)<=tr.StopLevel(k));
@@ -66,7 +67,7 @@ assert(isequaln(sv,st),'Signals must depend on OC mean, not Close alone.');
 V=removevars(T,'Low'); rejected=false;
 try, backtestChan(V,c); catch, rejected=true; end
 assert(rejected,'Missing Low must be rejected.');
-fprintf('PASS: 需审查 Chan rules (1B/2B/3B, 1S/2S/3S, false breakout) and engine (next open, stop, no lookahead, accounting).\n');
+fprintf('PASS: 已审查 Chan rules (1B/2B/3B, 1S/2S/3S, false breakout) and engine (signal-day close entry, stop, no lookahead, accounting).\n');
 end
 
 function s = mk(dir,hi,lo,f)
