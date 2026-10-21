@@ -16,9 +16,9 @@ writetable(r.Segments,fullfile(out,'segments.csv'));
 [~,name,ext]=fileparts(csvPath);
 label=sprintf('需审查 | Chan MA%d/MA%d | %s%s',c.fastMA,c.slowMA,name,ext);
 f=figure('Name',label,'Color','w','Position',[100 100 1100 800]); tiledlayout(3,1);
-nexttile; plot(T.Date,T.Close,'Color',[0.2 0.4 0.8],'LineWidth',1); hold on;
+nexttile; plot(T.Date,r.Daily.SignalPrice,'Color',[0.2 0.4 0.8],'LineWidth',1); hold on;
 tr=r.Trades; colors=[0 0.55 0; 0.1 0.6 0.9; 0.6 0.2 0.8]; types=["1B","2B","3B"];
-names={'Close'};
+names={'(Open + Close) / 2'};
 for k=1:3
     b=tr.EntryType==types(k);
     if any(b)

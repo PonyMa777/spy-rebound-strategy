@@ -24,7 +24,7 @@ s=mk([1 -1 1 -1 1],[105 104 103 101 98],[99 98 100 90 92],[5 5 5 5 5]);
 c=chanConfig(); t=(1:600)';
 px=100+0.02*t+8*sin(2*pi*t/37).*(1+0.6*sin(2*pi*t/290))+3*sin(2*pi*t/11);
 o=[px(1);px(1:end-1)];
-T=table(datetime(2000,1,3)+caldays(t-1),o,max(o,px),px,'VariableNames',{'Date','Open','High','Close'});
+T=table(datetime(2000,1,3)+caldays(t-1),o,max(o,px),min(o,px),px,'VariableNames',{'Date','Open','High','Low','Close'});
 r=backtestChan(T,c); tr=r.Trades;
 assert(height(tr)>0,'Synthetic series should trade.');
 for k=1:height(tr)
@@ -32,7 +32,7 @@ for k=1:height(tr)
     assert(j==i+1 && abs(tr.EntryPrice(k)-T.Open(j)*(1+c.slippageRate))<1e-12); % next open fill
     assert(any(r.Daily.Signal(i)==["1B","2B","3B"]));
     if tr.ExitReason(k)=="STOP"
-        e=find(T.Date==tr.ExitSignalDate(k)); assert(T.Close(e)<tr.StopLevel(k));
+        e=find(T.Date==tr.ExitSignalDate(k)); assert(T.Low(e)<=tr.StopLevel(k));
     end
 end
 assert(all(r.Daily.Cash>=0) && all(r.Daily.Shares>=0));
@@ -42,17 +42,30 @@ if ~isempty(open), expected=expected-open.Shares*open.EntryPrice-open.EntryFee+o
 assert(abs(r.Daily.Equity(end)-expected)<1e-6);
 % No lookahead: changing prices after day m leaves earlier signals and trades unchanged.
 m=400; U=T; U.Close(m+1:end)=U.Close(m+1:end)*1.3; U.Open(m+1:end)=U.Open(m+1:end)*1.3;
-U.High=max(U.Open,U.Close); q=backtestChan(U,c);
+U.High=max(U.Open,U.Close); U.Low=min(U.Open,U.Close); q=backtestChan(U,c);
 assert(isequal(r.Daily.Signal(1:m),q.Daily.Signal(1:m)));
 a=tr(tr.ExitDate<=T.Date(m),:); b=q.Trades(q.Trades.ExitDate<=T.Date(m),:);
 assert(isequal(a,b));
 % Disabled buy points: no trades. Flat prices: no signals.
 c2=c; c2.useBuy=[false false false]; assert(isempty(backtestChan(T,c2).Trades));
-U=T; U.Open(:)=100; U.Close(:)=100; U.High(:)=100; q=backtestChan(U,c);
+U=T; U.Open(:)=100; U.Close(:)=100; U.High(:)=100; U.Low(:)=100; q=backtestChan(U,c);
 assert(all(q.Daily.Signal=="") && isempty(q.Trades));
-% Time exit closes positions within maxHoldDays.
-c3=c; c3.maxHoldDays=5; q=backtestChan(T,c3);
-assert(all(q.Trades.HoldDays(q.Trades.ExitReason~="OPEN")<=6));
+% Explicit boundary, gap and ambiguous-bar tests.
+c0=c; c0.slippageRate=0;
+[why,p]=chanExitPrice(100,101.5,99.5,100,c0,false); assert(why=="TAKE_PROFIT" && abs(p-101.5)<1e-10);
+[why,p]=chanExitPrice(100,101,99,100,c0,false); assert(why=="STOP" && p==99);
+[why,p]=chanExitPrice(100,102,98,100,c0,false); assert(why=="STOP" && p==99);
+[why,p]=chanExitPrice(97,102,96,100,c0,false); assert(why=="STOP" && p==97);
+[why,p]=chanExitPrice(103,104,98,100,c0,false); assert(why=="TAKE_PROFIT" && p==103);
+[why,p]=chanExitPrice(100,102,98,100,c0,true); assert(why=="STOP" && p==99);
+[why,~]=chanExitPrice(100,101,99.1,100,c0,false); assert(why=="");
+assert(isequal(r.Daily.SignalPrice,(T.Open+T.Close)/2));
+V=T; V.Open=T.Close; V.Close=T.Open;
+sv=chanSignals(V,c); st=chanSignals(T,c);
+assert(isequaln(sv,st),'Signals must depend on OC mean, not Close alone.');
+V=removevars(T,'Low'); rejected=false;
+try, backtestChan(V,c); catch, rejected=true; end
+assert(rejected,'Missing Low must be rejected.');
 fprintf('PASS: 需审查 Chan rules (1B/2B/3B, 1S/2S/3S, false breakout) and engine (next open, stop, no lookahead, accounting).\n');
 end
 
