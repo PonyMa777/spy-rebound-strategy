@@ -1,37 +1,37 @@
 # SPY rebound strategy | SPY 反弹策略
 
-[两套策略的问题与改法（HTML，下载后用浏览器打开）](./SPY策略复盘.html)
+[两套策略的问题与改法 / Strategy review（下载后用浏览器打开 / download and open in a browser）](./SPY策略复盘.html)
 
-## 选择策略
+## 选择策略 | Choose a strategy
 
-| 策略目录 | 交易思路 | MATLAB 入口 |
+| 策略目录 / Folder | 交易思路 / Rule | MATLAB 入口 / Entry point |
 |---|---|---|
-| [反弹策略](./反弹策略/) | 连跌、横盘、反弹后买入 | `runSPY` |
-| [缠论策略](./缠论策略/) | 用均线划分走势，识别三类买点 | `runChan` |
+| [反弹策略 / Rebound](./反弹策略/) | 连跌、横盘、反弹后买入 / Buy after a decline, flat range and rebound | `runSPY` |
+| [缠论策略 / Chan](./缠论策略/) | 用均线划分走势，识别三类买点 / Identify three buy patterns with moving averages | `runChan` |
 
-在 MATLAB 中进入对应的策略目录运行。共享数据和回测输出仍放在仓库根目录的 `data/` 和 `results/`。
+在 MATLAB 中进入对应的策略目录运行。共享数据和回测输出仍放在仓库根目录的 `data/` 和 `results/`。 Run MATLAB from the strategy folder. Shared data and output stay in the root data and results folders.
 
-## 这个文件有什么用？
+## 这个文件有什么用？ | About this guide
 
-这是给看项目的人读的说明书：策略怎么买卖、回测结果怎样、怎样自己运行。删掉后 MATLAB 仍能回测，但 GitHub 首页会少了这些说明和图表。
+这是给看项目的人读的说明书：策略怎么买卖、回测结果怎样、怎样自己运行。删掉后 MATLAB 仍能回测，但 GitHub 首页会少了这些说明和图表。 This guide explains the rules, results and how to run the tests. Removing it removes the GitHub guide but does not affect MATLAB.
 
 
 
-## 文件地图
+## 文件地图 | File map
 
 ```mermaid
 flowchart TD
- P["SPY 回测项目"] --> A["反弹策略目录：连跌横盘反弹"]
- P --> B["缠论策略目录：三类买点"]
- A --> A1["runSPY.m 选行情文件"] --> A2["runDemo.m 读数据、存结果、画图"] --> A3["backtestStrategy.m 模拟买卖、算盈亏"]
- A --> A4["strategyConfig.m 设参数<br/>testStrategy.m 检查规则"]
- A --> AP["initProject.m 打开 MATLAB 项目"]
- P --> A5[".gitignore 指定哪些文件不上传<br/>README.md 项目说明书"]
- B --> B1["runChan.m 读行情、存结果"] --> B2["backtestChan.m 模拟交易、算盈亏"]
- B2 --> B3["chanSignals.m 切分走势"] --> B4["chanClassify.m 判断是哪类买点"]
- B2 --> B5["chanExitPrice.m 算卖价"]
- B --> B6["chanConfig.m 设参数<br/>testChan.m 检查规则"]
- B --> B7["README.md 讲策略怎么用<br/>REVIEW.md 记哪版测过、哪版要重查"]
+ P["SPY 回测项目<br/>SPY backtests"] --> A["反弹策略目录：连跌横盘反弹<br/>Rebound strategy"]
+ P --> B["缠论策略目录：三类买点<br/>Chan buy points"]
+ A --> A1["runSPY.m 选行情文件<br/>Select price data"] --> A2["runDemo.m 读数据、存结果、画图<br/>Load, save and plot"] --> A3["backtestStrategy.m 模拟买卖、算盈亏<br/>Simulate trades and P&L"]
+ A --> A4["strategyConfig.m 设参数<br/>testStrategy.m 检查规则<br/>Settings and rule tests"]
+ A --> AP["initProject.m 打开 MATLAB 项目<br/>Open MATLAB project"]
+ P --> A5[".gitignore 指定哪些文件不上传<br/>README.md 项目说明书<br/>Git exclusions and project guide"]
+ B --> B1["runChan.m 读行情、存结果<br/>Load and save results"] --> B2["backtestChan.m 模拟交易、算盈亏<br/>Simulate trades and P&L"]
+ B2 --> B3["chanSignals.m 切分走势<br/>Split price moves"] --> B4["chanClassify.m 判断是哪类买点<br/>Classify buy points"]
+ B2 --> B5["chanExitPrice.m 算卖价<br/>Calculate exit price"]
+ B --> B6["chanConfig.m 设参数<br/>testChan.m 检查规则<br/>Settings and rule tests"]
+ B --> B7["README.md 讲策略怎么用<br/>REVIEW.md 记哪版测过、哪版要重查<br/>Usage and version audit"]
 ```
 
 ## Project map | 项目思维导图
@@ -39,28 +39,28 @@ flowchart TD
 ```mermaid
 flowchart LR
     A["SPY rebound study<br/>SPY 反弹研究"]
-    A --> B["原版买卖标准 · v1"]
-    B --> B1["反弹策略买点：以开收盘均价判断<br/>连跌 3 天 → 横盘 5 天 → 比前一天涨至少 0.1%"]
-    B1 --> B2["横盘：5 天极差不超过均价的 2%<br/>每日相对斜率绝对值 ≤ 0.1%，进入横盘时涨跌幅 ≤ 2%"]
-    B2 --> B3["次日开盘用一半现金买入<br/>比买入价涨 1.5% 卖出，无固定止损"]
-    B --> B4["缠论策略买点：用 5 日和 10 日均线划分走势段"]
-    B4 --> B5["一买：高低点下移，新低处跌势减弱<br/>二买：一买后首次回调，低点高于一买低点<br/>三买：向上突破中枢，首次回调低点仍高于中枢上沿"]
-    B5 --> B6["任一买点确认后，次日开盘用可用现金买入<br/>按买入价设 1.5% 止盈、1% 止损"]
-    A --> C["原版策略与结果 · v1<br/>1993 年 1 月至 2026 年 10 月"]
-    C --> C1["连跌横盘反弹：累计收益 +31.04%<br/>年化夏普 0.17，最大回撤 26.18%"]
-    C --> C2["缠论三类买点（次日开盘版）：累计收益 −15.28%<br/>年化夏普 −0.38，最大回撤 16.59%"]
-    A --> D["问题与改法 · v2"]
-    D --> D1["反弹：只止盈，亏损可能一直拖着"]
-    D1 --> E1["已测：跌 1.5% 止损，涨 3% 止盈"]
-    E1 --> N1["待测：随机入场对照，检验买点"]
-    D --> D2["缠论：收盘确认后难以按同一收盘价成交"]
-    D2 --> E2["已测：预算盘中触发价，用日线模拟成交"]
-    E2 --> N2["待测：分钟数据核对触发和成交顺序"]
+    A --> B["原版买卖标准 · v1<br/>Original rules"]
+    B --> B1["反弹策略买点：以开收盘均价判断<br/>连跌 3 天 → 横盘 5 天 → 比前一天涨至少 0.1%<br/>Three declines, five flat days, then a 0.1% rise in the open-close midpoint"]
+    B1 --> B2["横盘：5 天极差不超过均价的 2%<br/>每日相对斜率绝对值 ≤ 0.1%，进入横盘时涨跌幅 ≤ 2%<br/>Range ≤ 2%, daily slope ≤ 0.1% in magnitude, transition ≤ 2%"]
+    B2 --> B3["次日开盘用一半现金买入<br/>比买入价涨 1.5% 卖出，无固定止损<br/>Half cash at next open, 1.5% target, no fixed stop"]
+    B --> B4["缠论策略买点：用 5 日和 10 日均线划分走势段<br/>Split moves with 5- and 10-day averages"]
+    B4 --> B5["一买：高低点下移，新低处跌势减弱<br/>二买：一买后首次回调，低点高于一买低点<br/>三买：向上突破中枢，首次回调低点仍高于中枢上沿<br/>Weaker new low, higher pullback low, or breakout retest above the range"]
+    B5 --> B6["任一买点确认后，次日开盘用可用现金买入<br/>按买入价设 1.5% 止盈、1% 止损<br/>Next-open entry, 1.5% target, 1% stop"]
+    A --> C["原版策略与结果 · v1<br/>1993 年 1 月至 2026 年 10 月<br/>Original results, Jan 1993–Oct 2026"]
+    C --> C1["连跌横盘反弹：累计收益 +31.04%<br/>年化夏普 0.17，最大回撤 26.18%<br/>Rebound: +31.04%, Sharpe 0.17, drawdown 26.18%"]
+    C --> C2["缠论三类买点（次日开盘版）：累计收益 −15.28%<br/>年化夏普 −0.38，最大回撤 16.59%<br/>Chan: −15.28%, Sharpe −0.38, drawdown 16.59%"]
+    A --> D["问题与改法 · v2<br/>Problems and changes"]
+    D --> D1["反弹：只止盈，亏损可能一直拖着<br/>No stop can leave losses open"]
+    D1 --> E1["已测：跌 1.5% 止损，涨 3% 止盈<br/>Tested: 1.5% stop, 3% target"]
+    E1 --> N1["已测：3% 止盈、无止损版本的随机买点对照<br/>Completed: matched random-entry test with 3% target and no stop"]
+    D --> D2["缠论：收盘确认后难以按同一收盘价成交<br/>Closing signal arrives too late for a same-close fill"]
+    D2 --> E2["已测：预算盘中触发价，用日线模拟成交<br/>Tested: price trigger with daily bars"]
+    E2 --> N2["待测：分钟数据核对触发和成交顺序<br/>Pending: verify fill order with minute data"]
     classDef warning fill:#ffe0e0,stroke:#ba202b,color:#810b17,stroke-width:2px;
     class D,D1,D2,E1,E2,N1,N2 warning;
     A --> F["Findings · 我学到了什么"]
-    F --> F1["反弹策略全期收益 +31.04%<br/>最大回撤 −26.18%"]
-    F --> F2["近期交易少<br/>表现是否改变仍待验证"]
+    F --> F1["反弹策略全期收益 +31.04%<br/>最大回撤 −26.18%<br/>Original rebound return +31.04%, drawdown 26.18%"]
+    F --> F2["近期交易少<br/>表现是否改变仍待验证<br/>Few recent trades; performance change remains uncertain"]
 ```
 
 **CV summary (English).** Built a MATLAB backtest for two SPY trading strategies using daily prices from 1993 to 2026. Defined entry and exit rules, separated signal dates from execution dates, and compared returns, Sharpe ratios and drawdowns across periods.
@@ -69,62 +69,62 @@ flowchart LR
 
 
 
-**研究约定：每次改策略都加对照，只记问题、方法、结果。**
+**研究约定：每次改策略都加对照，只记问题、方法、结果。 / For every change, add a control and record the question, method and result.**
 
-## 缠论买点对照
+## 缠论买点对照 | Chan entry control
 
-- **问题**：均线上穿时，再挑缠论买点，能提高收益吗？
-- **方法**：在同年、相同大盘趋势的上穿机会中随机抽取，保留各组机会数、仓位、卖点和费用，模拟 10,000 次。
-- **结果**：缠论 −13.31%，随机中位 −12.23%；仅超过 41.51% 的对照，未达到 95% 门槛。
+- **问题**：均线上穿时，再挑缠论买点，能提高收益吗？ / Does selecting Chan patterns improve returns at moving-average crossings?
+- **方法**：在同年、相同大盘趋势的上穿机会中随机抽取，保留各组机会数、仓位、卖点和费用，模拟 10,000 次。 / Sample crossings within the same year and trend, keeping opportunity counts, exposure rules, exits and costs fixed across 10,000 trials.
+- **结果**：缠论 −13.31%，随机中位 −12.23%；仅超过 41.51% 的对照，未达到 95% 门槛。 / Chan returned −13.31% versus a random median of −12.23%, beating 41.51% of controls against a 95% threshold.
 
-## 买点验证：与相似行情下的随机入场对照
+## 买点验证：与相似行情下的随机入场对照 | Rebound entry control
 
 ```mermaid
 flowchart TD
- A["先验证买点，再决定是否换模型"] --> B["同年、同均线状态：真实信号对比随机普通日"]
- B --> C["扣成本累计收益：信号 +53.96%，随机中位 +70.75%"]
- C --> D["只超过 6.78% 的对照；历史样本未支持买点优势"]
+ A["先验证买点，再决定是否换模型<br/>Test entries before changing models"] --> B["同年、同均线状态：真实信号对比随机普通日<br/>Match random days by year and trend"]
+ B --> C["扣成本累计收益：信号 +53.96%，随机中位 +70.75%<br/>After costs: signal +53.96%, random median +70.75%"]
+ C --> D["只超过 6.78% 的对照；历史样本未支持买点优势<br/>Beat 6.78% of controls; no evidence of an edge"]
  classDef urgent fill:#a40012,color:#ffffff,stroke:#67000b,stroke-width:4px;
  class A,B,C,D urgent;
 ```
 
-**问题。** 在相似行情下，连跌、横盘、反弹的买点，比普通日子买入更赚钱吗？
+**问题。** 在相似行情下，连跌、横盘、反弹的买点，比普通日子买入更赚钱吗？ / Does this signal beat ordinary entry days in comparable markets?
 
-**跑之前定的标准。** 比较扣除成本后的期末账户收益；只有超过至少 95% 的随机账户，才算本次比较支持这个买点。两组均从 10 万美元起步、次日开盘用半仓买入、涨 3% 卖、无固定止损；沿用同一手续费、滑点、跳空和持仓规则，期末持仓按收盘价估值，不另计分红。
+**跑之前定的标准。** 比较扣除成本后的期末账户收益；只有超过至少 95% 的随机账户，才算本次比较支持这个买点。两组均从 10 万美元起步、次日开盘用半仓买入、涨 3% 卖、无固定止损；沿用同一手续费、滑点、跳空和持仓规则，期末持仓按收盘价估值，不另计分红。 / The preset threshold was to beat 95% of controls after costs. Start with $100,000, enter at the next open with half the cash, target 3% with no stop, apply identical costs and gap rules, and mark open shares to the final close, without separately crediting dividends.
 
-**怎么配。** 1993-01-29 至 2026-10-19，有 70 个可在下一交易日执行的原始信号。每轮从非信号日无放回抽取 70 天，保证各年份、各 200 日均线状态（线上含相等、线下、预热期）的机会数与真实组相同。相似程度只按年份和趋势粗略匹配。两组持仓时都忽略新信号，所以实际成交笔数可以不同。随机种子 20261123，共 10,000 轮。
+**怎么配。** 1993-01-29 至 2026-10-19，有 70 个可在下一交易日执行的原始信号。每轮从非信号日无放回抽取 70 天，保证各年份、各 200 日均线状态（线上含相等、线下、预热期）的机会数与真实组相同。相似程度只按年份和趋势粗略匹配。两组持仓时都忽略新信号，所以实际成交笔数可以不同。随机种子 20261123，共 10,000 轮。 / Draw 70 non-signal days without replacement per trial, matching year and position relative to the 200-day average (including warm-up). Skip signals while invested. Seed 20261123, 10,000 trials.
 
-| 指标 | 真实买点 | 随机普通日 |
+| 指标 / Metric | 真实买点 / Signal | 随机普通日 / Random median |
 |---|---:|---:|
-| 累计收益 | +53.96% | 中位 +70.75% |
-| 实际入场笔数 | 30 | 中位 38 |
-| 持仓交易日数（首尾日均计） | 4,498 | 中位 3,834 |
+| 累计收益 / Return | +53.96% | 中位 +70.75% |
+| 实际入场笔数 / Entries | 30 | 中位 38 |
+| 持仓交易日数（首尾日均计） / Days held, inclusive | 4,498 | 中位 3,834 |
 
 随机收益第 5 至第 95 百分位为 +52.13% 至 +95.45%。真实组只超过 678 / 10,000 组。**学习记录：策略历史赚钱，并不能说明买点选得好。这个买点没有通过事先定的门槛。** 同一段历史已经被多次研究；未见数据上的检验仍待完成。
 
-*The signal beat only 6.78% of matched random-entry portfolios after costs. This historical test did not show an entry advantage.*
+*The signal beat only 6.78% of matched random-entry portfolios after costs. Random returns ranged from +52.13% to +95.45% between the 5th and 95th percentiles. The signal did not clear the preset threshold. Testing on fresh data is still pending.*
 
-## 问题与改法 · 新规则回测
+## 问题与改法 · 新规则回测 | Revised rules and results
 
-**策略一 · 反弹。** 最致命的问题是只设止盈，买错后可能长期持有。我把退出规则改成跌 1.5% 触发止损、涨 3% 止盈，保留原来的买点和半仓。全期最大回撤从 26.18% 降到 18.22%，累计收益却从 +31.04% 变为 −5.85%。我学到止损能改变亏损的分布，但买点有没有优势还要单独检验。**下一步（未做）**：用相同成本、仓位和退出规则，与随机入场比较，再用未参与选规则的数据验证。
+**策略一 · 反弹。** 最致命的问题是只设止盈，买错后可能长期持有。我把退出规则改成跌 1.5% 触发止损、涨 3% 止盈，保留原来的买点和半仓。全期最大回撤从 26.18% 降到 18.22%，累计收益却从 +31.04% 变为 −5.85%。我学到止损能改变亏损的分布，但买点有没有优势还要单独检验。3% 止盈、不设止损版本已做随机对照；未见数据检验仍待完成。
 
-*The new exits reduced drawdown, but the entry signal still needs testing.*
+*With the same entries and half-cash positions, a 3% target and 1.5% stop cut drawdown from 26.18% to 18.22% and changed return from +31.04% to −5.85%. The separate random-entry test used a 3% target without a stop. Fresh-data validation is pending.*
 
 **策略二 · 缠论。** 最致命的问题是用最终收盘价确认信号，又假设能按这个价格买入。我改用盘前已经完成的走势段判定是否具备一、二、三买形态；开盘后用当天开盘价和实时价格的平均值更新均线，预先算出 5 日线上穿 10 日线的触发价。回测中当天最高价碰到触发价即模拟买入，跳空则用开盘价，另计滑点，即使收盘前信号消失也保留这笔交易。我学到：知道信号的时间决定了可以假设的成交价。**下一步（未做）**：逐分钟核对触发、止盈和止损先后，并测试成交延迟。
 
-*The revised model enters at a price trigger; minute data is needed to check the fills.*
+*The model uses completed segments and the opening price to calculate an intraday crossover trigger. The daily high tests whether it was reached. Gap fills use the open plus slippage, and trades remain on record even if the signal fades by the close. Minute-level sequencing and execution delays still need testing.*
 
-![改版后两套策略与持续持有 SPY 的全期累计收益](assets/spy-v2.svg)
+![改版后两套策略与持续持有 SPY 的全期累计收益 / Revised strategies vs buy and hold](assets/spy-v2.svg)
 
-| 1993-01-29 至 2026-10-19 | 累计收益 | 最大回撤 |
+| 1993-01-29 至 2026-10-19 | 累计收益 / Return | 最大回撤 / Max drawdown |
 |---|---:|---:|
-| 买入持有 SPY | +1,641.45% | 56.47% |
-| 反弹 v2（54 笔已平仓） | −5.85% | 18.22% |
-| 缠论 v2（盘中触发模拟，127 笔已平仓） | −13.31% | 13.65% |
+| 买入持有 SPY / Buy and hold | +1,641.45% | 56.47% |
+| 反弹 v2（54 笔已平仓 / Rebound, 54 closed trades） | −5.85% | 18.22% |
+| 缠论 v2（盘中触发模拟，127 笔已平仓 / Chan intraday proxy, 127 closed trades） | −13.31% | 13.65% |
 
-各以 10 万美元起步，两套策略均用半仓。缠论沿用 +1.5% 止盈、−1% 止损。日线无法还原盘中路径，模型按触发价加滑点估算买价；同日低点触及止损时保守假设入场后先止损，即使低点可能出现在买入前。跳空可能使亏损超过止损比例。未另计分红再投资。此处是同一历史样本上的规则比较。
+各以 10 万美元起步，两套策略均用半仓。缠论沿用 +1.5% 止盈、−1% 止损。日线无法还原盘中路径，模型按触发价加滑点估算买价；同日低点触及止损时保守假设入场后先止损，即使低点可能出现在买入前。跳空可能使亏损超过止损比例。未另计分红再投资。此处是同一历史样本上的规则比较。 / Each account starts with $100,000. Both active strategies use half the cash. Chan keeps its 1.5% target and 1% stop. Daily bars cannot establish the order of touches, so a same-day stop is assumed first. Gaps can widen losses. Dividends are not separately reinvested.
 
-新版复现入口：`python spy_v2_backtest.py SPY_1993_2026.csv chart.svg`。下方 MATLAB 说明、对比图和数字保留为原版记录。
+新版复现入口 / Reproduce v2: `python spy_v2_backtest.py SPY_1993_2026.csv chart.svg`。下方 MATLAB 说明、对比图和数字保留为原版记录。 The MATLAB notes and charts below document v1.
 
 ## English
 
@@ -158,11 +158,11 @@ I also compared it with an earlier version of a moving-average strategy based on
 
 ### 全期累计收益对比 · Full-period cumulative returns
 
-![两套策略与买入持有 SPY 的逐日累计收益](assets/spy-full-history.svg)
+![两套策略与买入持有 SPY 的逐日累计收益 / Daily cumulative returns vs buy and hold](assets/spy-full-history.svg)
 
 1993-01-29 至 2026-10-19，各以 10 万美元起步。反弹策略 **+31.04%**，缠论次日开盘版 **−15.28%**，首日开盘买入并持有 SPY **+1,641.45%**。基准计入买入手续费和滑点，期末按收盘价估值，未另计分红再投资。纵轴按账户净值的对数刻度绘制，标签显示累计收益率。
 
-All three accounts start with $100,000. The benchmark buys SPY at the first open and holds through the final close. Entry costs are included; dividends are not separately reinvested.
+All three accounts start with $100,000. The benchmark buys SPY at the first open and holds through the final close. Entry costs are included; dividends are not separately reinvested. The chart uses a log wealth scale with cumulative-return labels.
 
 
 ![Cumulative account returns for both strategies over the full history and recent period | 两套策略的全期和近期累计收益](assets/spy-strategy-comparison.png)
@@ -183,3 +183,19 @@ Dates: 1993-01-29 to 2026-10-19. The recent period begins 2025-01-02 and carries
 
 全期为 1993-01-29 至 2026-10-19，近期从 2025-01-02 开始，沿用此前的账户状态和信号历史。夏普按每日账户收益计算，包含空仓日，无风险利率取零，按每年 252 个交易日年化。最大回撤从各区间内的高点计算。近期样本较短，难以据此判断策略表现是否发生变化。
 
+
+## 最后学到了什么 | What I learned
+
+```mermaid
+flowchart TB
+ R["两个买点都输给了各自随机组的中位数<br/>Both signals trailed their matched random median."]
+ classDef verdict fill:#fff1f2,color:#aa001c,stroke:#aa001c,stroke-width:4px,font-size:24px,font-weight:bold;
+ class R verdict;
+```
+
+**原假设是“这些形态能选出更好的买点”。反弹只赢过 6.78% 的随机组，缠论赢过 41.51%。在这段历史里，两者都没有达到事先定的 95% 门槛。**  
+**I expected these patterns to pick better entries. Rebound beat 6.78% of controls and Chan beat 41.51%. Neither reached the preset 95% threshold in this sample.**
+
+1. **先提能检验的问题。** 直觉可以提出买点；先写清要预测什么、和谁比、怎样算赢。 / **State a testable question.** Define the prediction, baseline and success threshold before testing.
+2. **只改一个条件。** 验证买点时，固定仓位、退出规则和成本。用匹配的随机组判断买点有没有额外价值。 / **Change one thing.** Hold sizing, exits and costs fixed, then compare entries with matched random controls.
+3. **下次先留出新数据。** 如果尝试统计模型，先定预测目标，再按时间划分训练和测试；规则锁定后，只在未看过的数据上做最终检验。新模型能否胜过随机组仍待验证。 / **Reserve fresh data.** For a statistical model, define the target and split the data by time. Lock the rules before the final test. Whether the model beats random entries remains open.
