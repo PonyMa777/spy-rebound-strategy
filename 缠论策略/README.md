@@ -1,3 +1,5 @@
+> 在 MATLAB 中进入本目录，运行 `runChan`。默认读取仓库根目录 `data/` 中的 SPY 日线。当前版本的审查状态见 [REVIEW.md](./REVIEW.md)。
+
 # 当前规则更新（2026-10-20）
 
 给人看的缠论策略说明书，记录交易规则和使用方法。删掉仍能回测，但会丢失这些说明。
@@ -23,10 +25,10 @@
 
 ## 运行
 
-在 MATLAB 中进入项目根目录：
+在 MATLAB 中进入缠论策略目录：
 
 ```matlab
-addpath('已审查')
+% 已在缠论策略目录
 testChan            % 规则 + 引擎测试
 r = runChan;        % 默认使用 data/SPY_1993_2026.csv
 r = runChan('D:\你的数据目录\stock.csv');
