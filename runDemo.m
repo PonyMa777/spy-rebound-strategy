@@ -1,4 +1,6 @@
 function r = runDemo(csvPath)
+% 共用运行入口：不传参数时用模拟价格演示，传 CSV 路径时读取真实数据；跑完保存结果和图。
+% runSPY 选完文件也调用这里。删掉后两个入口都会失效，回测核心仍可单独调用。
 % runDemo: synthetic example. runDemo('D:\path\stock.csv'): your data.
 root=fileparts(mfilename('fullpath')); c=strategyConfig();
 if nargin==0 || strlength(string(csvPath))==0

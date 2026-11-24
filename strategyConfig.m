@@ -1,4 +1,6 @@
 function c = strategyConfig()
+% 策略设置：改连跌天数、横盘范围、止盈、仓位或手续费，都在这里改。
+% runDemo 和 testStrategy 从这里取参数；直接删掉会让它们找不到默认设置。
 % Editable daily strategy parameters. Returns/fees are decimal fractions.
 c.initialCash = 100000;
 c.symbol = 'SPY';

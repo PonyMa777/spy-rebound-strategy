@@ -1,5 +1,11 @@
 # SPY rebound strategy | SPY 反弹策略
 
+## 这个文件有什么用？
+
+这是给看项目的人读的说明书：策略怎么买卖、回测结果怎样、怎样自己运行。删掉后 MATLAB 仍能回测，但 GitHub 首页会少了这些说明和图表。
+
+
+
 ## Project map | 项目思维导图
 
 ```mermaid

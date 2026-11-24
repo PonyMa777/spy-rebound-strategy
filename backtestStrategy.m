@@ -1,4 +1,6 @@
 function r = backtestStrategy(T,c)
+% 回测核心：逐日检查买点、模拟成交，算出交易记录、账户净值和回撤。
+% 删掉后，runDemo、runSPY 和 testStrategy 都无法完成回测。
 % Signal at close t; execution at open t+1. Take-profit limit; re-entry after a fresh signal.
 required = {'Date','Open','High','Close'};
 assert(all(ismember(required,T.Properties.VariableNames)), ...
