@@ -25,6 +25,8 @@ CSV 必须包含 `Date,Open,High,Close`，日期格式 YYYY-MM-DD，按日期升
 4. 当天收盘才产生信号，下一交易日开盘按开盘价加 0.05% 滑点成交。使用当时现金的 50%，包含 0.05% 手续费，整股向下取整。
 5. 买入后设止盈限价为实际买入价 × 1.015，触及即全部卖出。这是股价毛收益 1.5%，扣除手续费后净收益略低。日线 High 用于判断限价是否触及；假设立即挂单且足量成交，允许开盘买入当日止盈。已有仓位遇跳空高开时按开盘价扣滑点成交，但不低于限价。卖出后等待卖出日之后的新信号，不加仓。最后一天仅有买入信号不会成交。
 
+**Strategy 1: Rebound Strategy.** Using the average of each day’s open and close, look for three declines, five quiet days, then a rise of at least 0.1%. Buy at the next open with half the available cash. Sell when the price reaches 1.5% above the entry price. There is no stop-loss.
+
 这些定义是实现第一版所作的假设，不是用户已指定的唯一解释。标的固定为用户选择的 SPY ETF。止损、观察有效期和多股票资金分配尚未实现。
 
 ## 输出

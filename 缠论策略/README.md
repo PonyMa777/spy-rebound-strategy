@@ -16,6 +16,8 @@
 - 下方旧版回测数字已失效，不代表当前规则表现。运行 testChan 验证新规则。
 - 力度仍为均线距离的面积代理指标，没有改成完整缠论。
 
+**Strategy 2: Chan Theory Strategy.** The 5-day and 10-day moving averages identify three possible entries: a weaker decline to a new low, a pullback that holds above that low, or a breakout followed by a pullback that stays above the old range. The current version uses half the available cash and assumes a fill at the signal day’s close. That timing still needs review. From the next trading day, the profit target is 1.5% and the stop is 1% below entry.
+
 ---
 
 ## 以下为旧版研究记录（已被上方规则覆盖）
