@@ -1,5 +1,32 @@
 # SPY rebound strategy | SPY 反弹策略
 
+## Project map | 项目思维导图
+
+```mermaid
+flowchart LR
+    A["SPY rebound study<br/>SPY 反弹研究"]
+    A --> B["My question · 我的想法"]
+    B --> B1["跌后什么时候买？<br/>反弹到哪里卖？"]
+    A --> C["Implementation · 我做了什么"]
+    C --> C1["MATLAB 日线回测<br/>连跌 → 横盘 → 反弹"]
+    C1 --> C2["次日开盘投入半仓<br/>涨 1.5% 止盈"]
+    C --> C3["比较另一套完整策略<br/>缠论三类买点与固定止损"]
+    A --> D["Problems and changes · 问题与改法"]
+    D --> D1["怎样定义横盘？"]
+    D1 --> E1["固定 5 天窗口<br/>限制价格区间和斜率"]
+    D --> D2["收盘才知道信号<br/>什么时候能成交？"]
+    D2 --> E2["分开记录信号日和成交日<br/>比较时采用次日开盘版本"]
+    D --> D3["只看止盈看不到<br/>持仓期间亏了多少"]
+    D3 --> E3["逐日计算账户净值<br/>衡量夏普和最大回撤"]
+    A --> F["Findings · 我学到了什么"]
+    F --> F1["反弹策略全期收益 +31.04%<br/>最大回撤 −26.18%"]
+    F --> F2["近期交易少<br/>表现是否改变仍待验证"]
+```
+
+**CV summary (English).** Built a MATLAB backtest for two SPY trading strategies using daily prices from 1993 to 2026. Defined entry and exit rules, separated signal dates from execution dates, and compared returns, Sharpe ratios and drawdowns across periods.
+
+**中文简历表述。** 用 MATLAB 对两套 SPY 交易策略进行回测，覆盖 1993 至 2026 年的日线数据。将买卖条件写成明确规则，区分信号日与成交日，并分时段比较收益率、夏普比率和最大回撤。
+
 ## English
 
 I built a daily backtest in MATLAB to answer a simple question: after SPY falls for several days and trades in a narrow range, does a small rebound give a useful entry signal?
