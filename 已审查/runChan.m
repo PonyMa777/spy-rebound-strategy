@@ -1,4 +1,5 @@
 function r = runChan(csvPath)
+% 读入行情，调用回测，再保存结果。删掉就要自己串起这些步骤。
 % 已审查: runChan() uses data/SPY_1993_2026.csv; runChan('D:\path\stock.csv') uses your file.
 here=fileparts(mfilename('fullpath')); root=fileparts(here);
 if nargin==0 || strlength(string(csvPath))==0

@@ -1,4 +1,5 @@
 function testChan()
+% 用已知样例检查买点、卖价和回测逻辑。删掉仍能回测，但少了这组自动检查。
 % 已审查: rule tests on hand-built segments, then engine properties on synthetic prices.
 % 1B: lower high, new low, weaker force.
 s=mk([1 -1 1 -1],[110 108 105 103],[100 95 96 92],[0 10 0 6]);

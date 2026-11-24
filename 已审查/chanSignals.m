@@ -1,4 +1,5 @@
 function s = chanSignals(T,c)
+% 把日线按均线交叉切成走势段，再调用 chanClassify 标记信号。删掉后回测找不到入场信号。
 % 已审查: split daily open-close means into fast/slow MA segments; label each crossing day.
 % A segment is known only at the crossing that ends it, so labels use data up to that close.
 assert(c.fastMA>=1 && c.slowMA>c.fastMA,'slowMA must exceed fastMA.');

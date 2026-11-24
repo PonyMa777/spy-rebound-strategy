@@ -1,4 +1,5 @@
 function [label,stop,zg,zd,falseBreak] = chanClassify(seg)
+% 根据各段高低点和力度判断一买、二买、三买等信号。删掉后走势段无法按这些规则分类。
 % 已审查: classify the newest completed MA segment (lessons 12-20, MA version).
 % seg fields are column vectors, oldest first: Dir (+1 up / -1 down), Hi, Lo, Force, Label.
 % A down segment ends at a golden cross (buy side); an up segment ends at a death cross (sell side).

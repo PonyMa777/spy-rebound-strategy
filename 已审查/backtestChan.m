@@ -1,4 +1,5 @@
 function r = backtestChan(T,c)
+% 逐日模拟买卖、扣费用、算净值。删掉后 runChan 无法回测。
 % 已审查: long only. Signal confirmed at close t, filled at that close t (plus slippage).
 % Fixed intraday take-profit/stop only. Same-bar ambiguity: stop first.
 required={'Date','Open','High','Low','Close'};

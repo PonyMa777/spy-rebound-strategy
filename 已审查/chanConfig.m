@@ -1,4 +1,5 @@
 function c = chanConfig()
+% 集中设置均线天数、仓位、止盈止损和费用。删掉后运行入口拿不到参数。
 % 已审查: Chan theory lessons 11-20, moving-average version. Returns/fees are decimal fractions.
 c.initialCash = 100000;
 c.fastMA = 5;             % lesson 11: short MA

@@ -1,4 +1,5 @@
 function [reason,price] = chanExitPrice(o,h,l,entry,c,isEntryDay)
+% 检查止盈、止损或跳空，算出模拟卖价。删掉后回测无法处理卖出。
 % Resting bracket orders: open gaps first, otherwise pessimistic intraday order.
 % Targets are gross price returns, not net of fees.
 target=entry*(1+c.takeProfit); stop=entry*(1-c.stopLoss);

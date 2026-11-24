@@ -6,6 +6,22 @@
 
 
 
+## 文件地图
+
+```mermaid
+flowchart TD
+ P["SPY 回测项目"] --> A["根目录：连跌横盘反弹策略"]
+ P --> B["已审查目录：缠论买点策略"]
+ A --> A1["runSPY.m 选行情文件"] --> A2["runDemo.m 读数据、存结果、画图"] --> A3["backtestStrategy.m 模拟买卖、算盈亏"]
+ A --> A4["strategyConfig.m 设参数<br/>testStrategy.m 检查规则"]
+ A --> A5["initProject.m 打开 MATLAB 项目<br/>.gitignore 指定哪些文件不上传<br/>README.md 项目说明书"]
+ B --> B1["runChan.m 读行情、存结果"] --> B2["backtestChan.m 模拟交易、算盈亏"]
+ B2 --> B3["chanSignals.m 切分走势"] --> B4["chanClassify.m 判断是哪类买点"]
+ B2 --> B5["chanExitPrice.m 算卖价"]
+ B --> B6["chanConfig.m 设参数<br/>testChan.m 检查规则"]
+ B --> B7["README_已审查.md 讲策略怎么用<br/>REVIEW.md 记哪版测过、哪版要重查"]
+```
+
 ## Project map | 项目思维导图
 
 ```mermaid
