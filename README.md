@@ -95,6 +95,15 @@ I also compared it with an earlier version of a moving-average strategy based on
 
 ## Backtest results | 回测结果
 
+### 全期累计收益对比 · Full-period cumulative returns
+
+![两套策略与买入持有 SPY 的逐日累计收益](assets/spy-full-history.svg)
+
+1993-01-29 至 2026-10-19，各以 10 万美元起步。反弹策略 **+31.04%**，缠论次日开盘版 **−15.28%**，首日开盘买入并持有 SPY **+1,641.45%**。基准计入买入手续费和滑点，期末按收盘价估值，未另计分红再投资。纵轴按账户净值的对数刻度绘制，标签显示累计收益率。
+
+All three accounts start with $100,000. The benchmark buys SPY at the first open and holds through the final close. Entry costs are included; dividends are not separately reinvested.
+
+
 ![Cumulative account returns for both strategies over the full history and recent period | 两套策略的全期和近期累计收益](assets/spy-strategy-comparison.png)
 
 Top row: rebound strategy. Bottom row: Chan buy points. Left: full history. Right: returns since January 2025, starting from zero. Vertical scales differ.  
