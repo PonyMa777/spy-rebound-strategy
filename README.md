@@ -197,5 +197,6 @@ flowchart TB
 **I expected these patterns to pick better entries. Rebound beat 6.78% of controls and Chan beat 41.51%. Neither reached the preset 95% threshold in this sample.**
 
 1. **先提能检验的问题。** 直觉可以提出买点；先写清要预测什么、和谁比、怎样算赢。 / **State a testable question.** Define the prediction, baseline and success threshold before testing.
-2. **只改一个条件。** 验证买点时，固定仓位、退出规则和成本。用匹配的随机组判断买点有没有额外价值。 / **Change one thing.** Hold sizing, exits and costs fixed, then compare entries with matched random controls.
+2. **控制变量法：一次只改一个因素。** 检验买点时，我固定仓位、退出规则和成本，只把策略买点换成相似行情下的随机买点，看收益怎么变。 / **One factor at a time (OFAT).** I kept position size, exit rules and costs fixed, and changed only the entry rule to see how returns compared with matched random entries. [NIST 方法说明 / Method](https://www.itl.nist.gov/div898/handbook/pri/section2/pri212.htm)
 3. **下次先留出新数据。** 如果尝试统计模型，先定预测目标，再按时间划分训练和测试；规则锁定后，只在未看过的数据上做最终检验。新模型能否胜过随机组仍待验证。 / **Reserve fresh data.** For a statistical model, define the target and split the data by time. Lock the rules before the final test. Whether the model beats random entries remains open.
+4. **先看别人是怎么做的。** 下次做量化研究，我会先查论文、开源项目和论坛，看别人怎么研究类似的问题，再借用合适的流程，用自己的数据验证。 / **Learn from existing work.** Next time, I’ll check papers, open-source projects and forums to see how others approached a similar question, then adapt their workflow and test it on my own data. [量化研究流程示例 / Example workflow](https://www.quantconnect.com/docs/v2/cloud-platform/research-pipeline)
