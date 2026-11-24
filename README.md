@@ -1,4 +1,55 @@
-# 连跌—横盘—反弹：日线研究项目
+# SPY rebound strategy | SPY 反弹策略
+
+## English
+
+I built a daily backtest in MATLAB to answer a simple question: after SPY falls for several days and trades in a narrow range, does a small rebound give a useful entry signal?
+
+I used the average of each day's open and close to measure the pattern. I looked for three daily declines, five days of sideways movement and then a rise of at least 0.1%. The strategy enters at the next open with half the available cash and sells when the price reaches 1.5% above the entry fill. It has no stop-loss. The backtest tracks cash, shares, fees and slippage, and values the account at each day's close.
+
+I also compared it with an earlier version of a moving-average strategy based on three Chan-style buy points. That version uses the available cash to enter at the next open and sets a 1.5% profit target and a 1% stop. Position size and exit rules differ, so the comparison measures the two complete strategies.
+
+**Problems I worked through**
+
+- “Three down days, then sideways” was too vague to test. I defined the windows, the maximum price range and slope, and the minimum rebound before writing the entry rule.
+- The signal needs the closing price. I separated the signal date from the next opening trade and checked that changing future prices did not change earlier signals. A later Chan implementation fills at the signal-day close. I used the saved next-open version for the comparison below.
+- A profitable exit can hide a long period of losses while a position is open. I measured daily account value and drawdown, including open positions and idle cash. The rebound strategy gained 31.04% over the full period but fell 26.18% from its peak at one point.
+
+## 中文
+
+我用 MATLAB 回测了一个具体想法：SPY 连跌几天，随后价格走平，第一次小幅反弹是否值得买入？
+
+我用每天开盘价和收盘价的平均值判断走势。连续下跌 3 天、横盘 5 天之后，如果一天上涨至少 0.1%，就在次日开盘用一半可用现金买入。价格比实际买入价上涨 1.5% 时卖出，没有止损。程序记录现金、股数、手续费和滑点，每天收盘计算账户净值。
+
+我还比较了一个较早的缠论买点版本。它根据均线识别三类买点，次日开盘用可用现金建仓，设 1.5% 止盈和 1% 止损。两个版本的仓位和退出规则都不同，因此表里的差异反映的是整套策略的表现。
+
+**遇到的问题和处理方法**
+
+- “连跌后横盘”靠看图容易有不同解释。我把天数、横盘区间、斜率和反弹幅度写成明确条件，让同一组数据产生一致的信号。
+- 当天收盘后才能确认信号。我分开记录信号日和成交日，并检查修改未来价格是否会影响已有信号。缠论代码后来改为信号日收盘成交，仍有时序问题；下图采用保存的次日开盘版本。
+- 单看已卖出的交易，容易忽略等待止盈期间的亏损。我把未平仓头寸和闲置现金都计入每日净值。反弹策略全期累计赚了 31.04%，但账户从高点最多跌过 26.18%。
+
+## Backtest results | 回测结果
+
+![Cumulative account returns for both strategies over the full history and recent period | 两套策略的全期和近期累计收益](assets/spy-strategy-comparison.png)
+
+Top row: rebound strategy. Bottom row: Chan buy points. Left: full history. Right: returns since January 2025, starting from zero. Vertical scales differ.  
+上排为反弹策略，下排为缠论买点；左侧为全期，右侧为近期重新归零后的累计收益。各图纵轴刻度不同。
+
+| Strategy / 策略 | Period / 时段 | Total return / 累计收益 | Annualized Sharpe / 年化夏普 | Max drawdown / 最大回撤 |
+|---|---|---:|---:|---:|
+| Rebound / 反弹 | Full / 全期 | +31.04% | 0.17 | −26.18% |
+| Rebound / 反弹 | 1993–2024 | +27.30% | 0.16 | −26.18% |
+| Rebound / 反弹 | 2025–2026 | +2.94% | 0.54 | −4.42% |
+| Chan / 缠论 | Full / 全期 | −15.28% | −0.38 | −16.59% |
+| Chan / 缠论 | 1993–2024 | −14.72% | −0.39 | −16.59% |
+| Chan / 缠论 | 2025–2026 | −0.65% | −0.26 | −1.76% |
+
+Dates: 1993-01-29 to 2026-10-19. The recent period begins 2025-01-02 and carries forward the account and signal history. Sharpe uses daily account returns including idle days, a zero risk-free rate and 252 trading days per year. Drawdown is measured from the running peak within each period. The short recent window gives limited evidence about changes in performance.
+
+全期为 1993-01-29 至 2026-10-19，近期从 2025-01-02 开始，沿用此前的账户状态和信号历史。夏普按每日账户收益计算，包含空仓日，无风险利率取零，按每年 252 个交易日年化。最大回撤从各区间内的高点计算。近期样本较短，难以据此判断策略表现是否发生变化。
+
+## Implementation notes | 原项目使用与实现说明
+
 
 这是单只股票的研究/回测项目，不连接券商、不下单。默认例子为人为构造的模拟价格，不能用来判断盈利能力。
 
