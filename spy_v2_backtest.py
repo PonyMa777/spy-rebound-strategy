@@ -54,7 +54,7 @@ class Account:
         return True
 
 
-def replay(rows):
+def replay(rows, crossings=None):
     rebound, chan = Account(.03,.015), Account(.015,.01)
     mids, diffs, segments, hold = [], [], [], []
     state, start, skip_first = 0, 0, True
@@ -78,12 +78,16 @@ def replay(rows):
             candidate=[max(mids[start:]),min(mids[start:]),sum(abs(x) for x in diffs[start:]),""]
             candidate[3]=buy_type(segments+[candidate])
         entered = False
-        if not chan.qty and candidate and candidate[3]:
+        if candidate:
             cross=2*(sum(mids[-9:])-2*sum(mids[-4:]))-o
             trigger=(math.floor(round(cross*100,8))+1)/100
             if h >= trigger:
-                chan.enter(max(o,trigger))
-                entered=True
+                quote=max(o,trigger)
+                if crossings is not None:
+                    crossings.append((i,quote,bool(candidate[3])))
+                if not chan.qty and candidate[3]:
+                    chan.enter(quote)
+                    entered=True
         chan.exit_bar(o,h,l,entered)
         for account in (rebound,chan):
             account.equity.append(account.cash+account.qty*c)
